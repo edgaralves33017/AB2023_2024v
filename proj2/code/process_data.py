@@ -58,7 +58,7 @@ malignant_testing_data = malignant_testing_data[0:shortestLength]
 #Check if there is an imbalance on data so that the model is not biased
 print()
 print(f"Benign training count: {len(benign_training_data)}")
-print(f"Malignt training count: {len(malignant_training_data)}")
+print(f"Malignant training count: {len(malignant_training_data)}")
 print()
 print(f"Benign testing count: {len(benign_testing_data)}")
 print(f"Malignant testing count: {len(malignant_testing_data)}")
