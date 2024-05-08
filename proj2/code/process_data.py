@@ -40,8 +40,6 @@ def addImagesToArray(listToAdd, folder, code):
             pass
 
 def createDataFile(name, mergedData):
-    #Shuffling the data so it isn't 100 benign images followed by 100 malignant images
-    #np.random.shuffle(mergedData)
     #Save to file
     np.save(name, mergedData)
 
@@ -65,10 +63,12 @@ print()
 print(f"Benign testing count: {len(benign_testing_data)}")
 print(f"Malignant testing count: {len(malignant_testing_data)}")
 
-#Merging training data
+#Merging training data. 
+#Shuffling the data so it isn't 100 benign images followed by 100 malignant images
 createDataFile("training_data.npy", np.random.shuffle(benign_testing_data+malignant_testing_data))
 
 #Merging testing data
+#Shuffling the data so it isn't 100 benign images followed by 100 malignant images
 createDataFile("testing_data.npy", np.random.shuffle(benign_training_data+malignant_testing_data))
 
 
