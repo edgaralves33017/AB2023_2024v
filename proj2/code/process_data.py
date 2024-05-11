@@ -35,13 +35,9 @@ def addImagesToArray(listToAdd, folder, code):
             #1st parameter: Converting to numpy array. 50x50 numpy array which element represents each pixel and how bright it is
             #1 color because its grayscale. If it was in color, we would have 3 values per pixel.
             #2nd parameter: Code for if its benign ( [1,0] ) or malignant ( [0,1] )
-            listToAdd.append([np.array(img), np.array(code)])
+            listToAdd.append(np.array([np.array(img), np.array(code)], dtype="object"))
         except:
             pass
-
-def createDataFile(name, mergedData):
-    #Save to file
-    np.save(name, mergedData)
 
 #Adding the images to their respective arrays
 addImagesToArray(benign_training_data, benign_training_folder, [1,0])
@@ -63,12 +59,14 @@ print()
 print(f"Benign testing count: {len(benign_testing_data)}")
 print(f"Malignant testing count: {len(malignant_testing_data)}")
 
-#Merging training data. 
+#Merging training data
+training_data = benign_training_data+malignant_training_data
 #Shuffling the data so it isn't 100 benign images followed by 100 malignant images
-createDataFile("training_data.npy", np.random.shuffle(benign_testing_data+malignant_testing_data))
+np.random.shuffle(training_data)
+np.save("training_data.npy", training_data)
 
-#Merging testing data
+#Merging testing data. 
+testing_data = benign_testing_data+malignant_testing_data
 #Shuffling the data so it isn't 100 benign images followed by 100 malignant images
-createDataFile("testing_data.npy", np.random.shuffle(benign_training_data+malignant_testing_data))
-
-
+np.random.shuffle(testing_data)
+np.save("testing_data.npy", testing_data)
