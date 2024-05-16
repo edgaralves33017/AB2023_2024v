@@ -7,11 +7,11 @@ import numpy as np
 image_size = 50
 
 #locations of image files
-benign_training_folder = "dataset/train/benign/"
-malignant_training_folder = "dataset/train/malignant/"
+benign_training_folder = "../dataset/train/benign/"
+malignant_training_folder = "../dataset/train/malignant/"
 
-benign_testing_folder = "dataset/test/benign/"
-malignant_testing_folder = "dataset/test/malignant/"
+benign_testing_folder = "../dataset/test/benign/"
+malignant_testing_folder = "../dataset/test/malignant/"
 
 #Saving the training + testing data in arrays
 benign_training_data = []
