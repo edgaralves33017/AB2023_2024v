@@ -1,76 +1,37 @@
-import numpy as np
 import torch
 from net_class import Net
-
+from sklearn.metrics import accuracy_score, roc_auc_score, precision_score, recall_score, f1_score
 
 # 50x50 pixels
 img_size = 50
-
 
 net = Net()
 net.load_state_dict(torch.load('melanoma_model.pth'))
 net.eval()
 
-
-testing_data = np.load("testing_data.npy", allow_pickle=True)
-
-
-# for row in testing_data:
-#     print(row[0])
-#     print(row[1])
-#     print()
-#     print()
-#     input()
-
+testing_data = torch.load("testing_data.pt")
 
 # putting all the image arrays into this tensor
-test_X = torch.Tensor( [item[0] for item in testing_data]  )
-test_X = test_X / 255
+test_X = torch.stack( [item[0] for item in testing_data]  )
 
-# for row in test_X:
-#     print(row)
-#     print()
-#     input()
-
-
-# one-hot vector labels tensor
-test_y = torch.Tensor( [item[1] for item in testing_data]  )
-
-
+# this tensor has the images labels
+test_y = torch.tensor( [item[1] for item in testing_data], dtype=torch.long  )
 
 correct = 0
 total = 0
 
-
 with torch.no_grad():
-    # tells pytorch not to automatically keep track of gradients
+    outputs = net(test_X)
+    _, predicted = torch.max(outputs, 1)
 
-    for i in range(len(test_X)):
+accuracy = accuracy_score(test_y, predicted)
+roc_auc = roc_auc_score(test_y, predicted)
+precision = precision_score(test_y, predicted)
+recall = recall_score(test_y, predicted)
+f1 = f1_score(test_y, predicted)
 
-        # real label (example):
-        # [0,1]
-        # model guess (example):
-        # [0.34,0.66]
-
-
-        output = net(test_X[i].view(-1, 1, img_size, img_size))[0]
-
-        if output[0] >= output[1]:
-            guess = "B"
-        else:
-            guess = "M"
-
-        real_label = test_y[i]
-
-        if real_label[0] >= output[1]:
-            real_class = "B"
-        else:
-            real_class = "M"
-
-        if guess == real_class:
-            correct += 1
-
-        total += 1
-
-
-print(f"Accuracy: {round(correct/total,3)}")
+print(f"Accuracy: {accuracy}")
+print(f"ROC AUC: {roc_auc}")
+print(f"Precision: {precision}")
+print(f"Recall: {recall}")
+print(f"F1 Score: {f1}")

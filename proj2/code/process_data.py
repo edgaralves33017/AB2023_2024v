@@ -1,3 +1,5 @@
+import torch
+from torchvision import transforms
 import os
 import cv2
 import numpy as np
@@ -20,44 +22,48 @@ malignant_training_data = []
 benign_testing_data = []
 malignant_testing_data = []
 
+# Transformações de aumento de dados
+data_transforms = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomRotation(10),
+    transforms.RandomResizedCrop(image_size, scale=(0.8, 1.0)),
+    transforms.ToTensor(),
+    transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
+])
+
 def addImagesToArray(listToAdd, folder, code):
     for filename in os.listdir(folder):
         try:
             path = folder+filename
-            #Grayscale to make images easier to work it
-            #In professional research work, we should make the call to make it grayscale or not. 
-            #If color matters for the project, don't make it grayscale
-            img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-
+            img = cv2.imread(path, cv2.IMREAD_COLOR)
             #Resize image
             img = cv2.resize(img, (image_size,image_size))
-
-            #1st parameter: Converting to numpy array. 50x50 numpy array which element represents each pixel and how bright it is
-            #1 color because its grayscale. If it was in color, we would have 3 values per pixel.
-            #2nd parameter: Code for if its benign ( [1,0] ) or malignant ( [0,1] )
-            listToAdd.append(np.array([np.array(img), np.array(code)], dtype="object"))
+            img_tensor = data_transforms(img)
+            #2nd parameter: Code for if its benign ( 0 ) or malignant ( 1 )
+            listToAdd.append([img_tensor, code])
         except:
             pass
 
+
 #Adding the images to their respective arrays
-addImagesToArray(benign_training_data, benign_training_folder, [1,0])
-addImagesToArray(benign_testing_data, benign_testing_folder, [1,0])
-addImagesToArray(malignant_training_data, malignant_training_folder, [0,1])
-addImagesToArray(malignant_testing_data, malignant_testing_folder, [0,1])
+addImagesToArray(benign_training_data, benign_training_folder, 0)
+addImagesToArray(benign_testing_data, benign_testing_folder, 0)
+addImagesToArray(malignant_training_data, malignant_training_folder, 1)
+addImagesToArray(malignant_testing_data, malignant_testing_folder, 1)
 
 #Make sure there isn't an imbalance of training data to prevent the model from being biased.
 #Cut vectors from the shortest length.
-shortestLength = len(benign_testing_data) if len(benign_testing_data) < len(malignant_testing_data) else len(malignant_testing_data)
 shortestLength = len(benign_training_data) if len(benign_training_data) < len(malignant_training_data) else len(malignant_training_data)
 benign_training_data = benign_training_data[0:shortestLength]
-malignant_testing_data = malignant_testing_data[0:shortestLength]
 malignant_training_data = malignant_training_data[0:shortestLength]
 
-shortesttrainingLength = len(benign_testing_data) if len(benign_testing_data) < len(malignant_testing_data) else len(malignant_testing_data)
-shortesttrainingLength = shortesttrainingLength if shortestLength/3 > shortesttrainingLength else int(shortestLength/3)
+shortesttestingLength = len(benign_testing_data) if len(benign_testing_data) < len(malignant_testing_data) else len(malignant_testing_data)
 
-benign_testing_data = benign_testing_data[0:shortesttrainingLength]
-malignant_testing_data = malignant_testing_data[0:shortesttrainingLength]
+benign_testing_data = benign_testing_data[0:shortesttestingLength]
+malignant_testing_data = malignant_testing_data[0:shortesttestingLength]
+
+
 
 #Check if there is an imbalance on data so that the model is not biased
 print()
@@ -71,10 +77,10 @@ print(f"Malignant testing count: {len(malignant_testing_data)}")
 training_data = benign_training_data+malignant_training_data
 #Shuffling the data so it isn't 100 benign images followed by 100 malignant images
 np.random.shuffle(training_data)
-np.save("training_data.npy", training_data)
+torch.save(training_data,"training_data.pt")
 
-#Merging testing data. 
+#Merging testing data.
 testing_data = benign_testing_data+malignant_testing_data
 #Shuffling the data so it isn't 100 benign images followed by 100 malignant images
 np.random.shuffle(testing_data)
-np.save("testing_data.npy", testing_data)
+torch.save(testing_data, "testing_data.pt")
