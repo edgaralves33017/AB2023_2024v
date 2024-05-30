@@ -48,8 +48,16 @@ addImagesToArray(malignant_testing_data, malignant_testing_folder, [0,1])
 #Make sure there isn't an imbalance of training data to prevent the model from being biased.
 #Cut vectors from the shortest length.
 shortestLength = len(benign_testing_data) if len(benign_testing_data) < len(malignant_testing_data) else len(malignant_testing_data)
+shortestLength = len(benign_training_data) if len(benign_training_data) < len(malignant_training_data) else len(malignant_training_data)
 benign_training_data = benign_training_data[0:shortestLength]
 malignant_testing_data = malignant_testing_data[0:shortestLength]
+malignant_training_data = malignant_training_data[0:shortestLength]
+
+shortesttrainingLength = len(benign_testing_data) if len(benign_testing_data) < len(malignant_testing_data) else len(malignant_testing_data)
+shortesttrainingLength = shortesttrainingLength if shortestLength/3 > shortesttrainingLength else int(shortestLength/3)
+
+benign_testing_data = benign_testing_data[0:shortesttrainingLength]
+malignant_testing_data = malignant_testing_data[0:shortesttrainingLength]
 
 #Check if there is an imbalance on data so that the model is not biased
 print()
